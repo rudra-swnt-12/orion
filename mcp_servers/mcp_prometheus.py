@@ -12,6 +12,7 @@ mcp = FastMCP(name="prometheus_server")
 log.info("Starting Prometheus MCP Server")
 log.info(f"Attempting to connect to Prometheus at {PROMETHEUS_URL}")
 
+
 @mcp.tool()
 def query_prometheus(query: str) -> str:
     log.info(f"Received query: {query}")
@@ -33,6 +34,7 @@ def query_prometheus(query: str) -> str:
         log.error(f"Error while running query '{query}': {e}")
         # Return the error message to the LLM so it knows it failed
         return f"Error: Could not execute query. {e}"
+
 
 if __name__ == "__main__":
     mcp.run()

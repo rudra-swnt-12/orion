@@ -1,7 +1,7 @@
 [project]
 name = "orion"
 version = "0.1.0"
-description = "Add your description here"
+description = "An autonomous AI agent that performs root-cause analysis for SRE and DevOps alerts."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

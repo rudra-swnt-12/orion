@@ -14,13 +14,12 @@ from llama_index.core import Settings
 from llama_index.core.node_parser import HierarchicalNodeParser
 from llama_index.core.node_parser import get_leaf_nodes
 from llama_index.llms.groq import Groq
-from llama_index.core import Settings
 
 load_dotenv()
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 KNOWLEDGE_DIR = "./knowledge_base"
-INDEX_PERSIST_DIR = "./storage/brain_index" # To save the index
+INDEX_PERSIST_DIR = "./storage/brain_index"  # To save the index
 LLM_MODEL = "llama-3.1-8b-instant"
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -30,21 +29,16 @@ try:
     log.info(f"Setting up LLM: Groq ({LLM_MODEL})")
     if not GROQ_API_KEY:
         raise ValueError("GROQ_API_KEY not found. Please add it to your .env file.")
-    Settings.llm = Groq(
-        model=LLM_MODEL,
-        api_key=GROQ_API_KEY,
-        request_timeout=120.0
-    )
+    Settings.llm = Groq(model=LLM_MODEL, api_key=GROQ_API_KEY, request_timeout=120.0)
 
     log.info("Setting up embedding model: BAAI/bge-small-en-v1.5")
-    Settings.embed_model = HuggingFaceEmbedding(
-        model_name="BAAI/bge-small-en-v1.5"
-    )
+    Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
 except Exception as e:
-    log.error(f"Failed to setup LLM/Embeddings.")
+    log.error("Failed to setup LLM/Embeddings.")
     log.error(f"Error: {e}")
     sys.exit(1)
+
 
 def build_index():
     log.info(f"Starting to build index from: {KNOWLEDGE_DIR}")
@@ -56,12 +50,10 @@ def build_index():
 
     # This is the "Hierarchical RAG" part.
     # It creates small chunks (128), medium chunks (512), and large chunks (1024)
-    node_parser = HierarchicalNodeParser.from_defaults(
-        chunk_sizes=[1024, 512, 128]
-    )
+    node_parser = HierarchicalNodeParser.from_defaults(chunk_sizes=[1024, 512, 128])
     nodes = node_parser.get_nodes_from_documents(documents)
-    leaf_nodes = get_leaf_nodes(nodes) # The smallest nodes for vector search
-    
+    leaf_nodes = get_leaf_nodes(nodes)  # The smallest nodes for vector search
+
     log.info(f"Created {len(nodes)} total nodes and {len(leaf_nodes)} leaf nodes.")
 
     # Built the vector index only from the smallest (leaf) nodes
@@ -74,6 +66,7 @@ def build_index():
     index.storage_context.persist(persist_dir=INDEX_PERSIST_DIR)
     log.info(f"Index built and saved to: {INDEX_PERSIST_DIR}")
     return index
+
 
 def get_query_engine():
     try:
@@ -93,9 +86,10 @@ def get_query_engine():
     query_engine = index.as_query_engine(
         similarity_top_k=3,
         # This AutoMergingRetriever is what makes it hierarchical
-        retriever_mode="Recursive", 
+        retriever_mode="Recursive",
     )
     return query_engine
+
 
 if __name__ == "__main__":
     # This block only runs when you execute the file directly
@@ -127,7 +121,7 @@ if __name__ == "__main__":
         print("\n--- Test 3: Interactive Mode ---")
         while True:
             query = input("\nYour query: ")
-            if query.lower() == 'quit':
+            if query.lower() == "quit":
                 break
             response = query_engine.query(query)
             print(f"Answer: {response}")
